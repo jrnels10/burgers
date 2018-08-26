@@ -1,0 +1,119 @@
+<style>
+    .burgers-to-eat {
+        font-size: 100%;
+        background-color: rgb(75, 157, 91);
+    }
+
+    .burgers-chomped {
+        font-size: 100%;
+        background-color: rgb(157, 75, 75);
+    }
+</style>
+<div class="container-fluid">
+
+    <div class="row burger-eating vh-100">
+        <div class="row w-100 vh-100">
+
+            <div class="col-3 jumbotron  vh-100 fresh-burgers text-center">
+                <h2>Fresh burgers</h2>
+                <ul>
+                    {{#each burgers}} {{#unless devoured}}
+                    <div class="burgers-to-eat m-3">
+
+                        <p>
+                            <span class="label">ID:</span> {{this.id}}</p>
+                        <p>
+                            <span class="label">Burger:</span> {{this.burger_name}}</p>
+                        <button class="devour-burger" data-id="{{id}}" data-newBurger="{{this.burger_name}}">
+                            Eat me!
+                        </button>
+                    </div>
+                    {{/unless}} {{/each}}
+                </ul>
+            </div>
+            <div class="col-6 jumbotron  make-a-burger w-100 vh-100 text-center">
+                <div class="row top m-auto">
+                    <h1 class="col-12 m-4 text-center">Good Burger!</h1>
+                    <div class="m-auto">
+
+                        <iframe src="https://giphy.com/embed/xTkcEAbKApEszgG4HS" width="480" height="273" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+                    </div>
+                </div>
+                <div class="row bottom m-auto">
+
+                    <form class="create-form text-center m-auto">
+                        <div class="form-group text-center m-auto">
+                            <label class="w-100 m-auto" for="burg">Type of burger:</label>
+                            <textarea id="burg" name="userBurger" rows="3" cols="40"></textarea>
+                        </div>
+
+                        <button type="submit">Add Burger</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-3 jumbotron vh-100 devoured-burgers text-center">
+                <h2>Devoured burgers</h2>
+                <ul>
+
+                    {{#each burgers}} {{#if devoured}}
+                    <div class="burgers-chomped m-3">
+                        <p>
+                            <span class="label">ID:</span> {{this.id}}</p>
+                        <p>
+                            <span class="label">Burger:</span> {{this.burger_name}}</p>
+                    </div>
+                    {{/if}} {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        $(".devour-burger").on("click", function (event) {
+            console.log('cliCked')
+            var id = $(this).data("id");
+            var newDevoured = 1;
+            console.log(id);
+            console.log(newDevoured)
+
+            var newDevouredState = {
+                devoured: newDevoured
+            };
+
+            // Send the PUT request.
+            $.ajax("/api/burgers/" + id, {
+                type: "PUT",
+                data: newDevouredState
+            }).then(
+                function () {
+                    console.log("changed to devoured");
+                    // Reload the page to get the updated list
+                    location.reload();
+                }
+            );
+        });
+        $(".create-form").on('submit', function () {
+            event.preventDefault();
+            console.log($('#burg').val());
+
+            const newBurger = {
+                burger_name: $('#burg').val().trim(),
+                devoured: 0
+            };
+
+            $.ajax("/api/burgers", {
+                type: "POST",
+                data: newBurger
+            }).then(
+                function () {
+                    console.log("created new burger");
+                    location.reload();
+                }
+            )
+
+        })
+
+    })
+</script>
